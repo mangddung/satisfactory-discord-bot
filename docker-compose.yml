@@ -1,0 +1,11 @@
+version: "1.0"
+
+services:
+  satisfactory-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+    command: ["python3", "main.py"]
+    volumes:
+      - .:/app
