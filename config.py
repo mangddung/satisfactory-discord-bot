@@ -16,3 +16,5 @@ APP_DB_URL              = os.getenv(
 )
 
 SERVER_CHECK_INTERVAL   = int(os.getenv("SERVER_CHECK_INTERVAL", 60)) # seconds
+
+CONTAINER_ID            = os.getenv("CONTAINER_ID", None)

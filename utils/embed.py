@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from discord.errors import NotFound, Forbidden, HTTPException
 from datetime import datetime, timezone, timedelta
-from utils import *
 
 STATUS_STYLE = {
     True:     {"dot": "🟢", "name": "OPEN",     "color": 0x2ECC71},

@@ -1,6 +1,6 @@
 from sqlalchemy import (
     Table, Column, Integer, String, Boolean, DateTime,
-    ForeignKey, UniqueConstraint
+    ForeignKey, UniqueConstraint, Index
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -28,20 +28,15 @@ class ServerSettings(BaseApp):
     container_id = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
-    member_privileges = relationship(
-        "ServerControlPrivilegeMember",
-        back_populates="server",
-        cascade="all, delete-orphan"
-    )
-    role_privileges = relationship(
-        "ServerControlPrivilegeRole",
+    privileges = relationship(
+        "ServerControlPrivilege",
         back_populates="server",
         cascade="all, delete-orphan"
     )
 
 
-class ServerControlPrivilegeMember(BaseApp):
-    __tablename__ = "server_control_privilege_member"
+class ServerControlPrivilege(BaseApp):
+    __tablename__ = "server_control_privilege"
 
     id = Column(Integer, primary_key=True)
     server_uuid = Column(
@@ -51,40 +46,19 @@ class ServerControlPrivilegeMember(BaseApp):
     )
     guild_id = Column(String, nullable=False)
     channel_id = Column(String, nullable=False)
-    member_id = Column(String, nullable=False)
-    member_name = Column(String, nullable=False)
+    principal_id = Column(String, nullable=False)
+    principal_name = Column(String, nullable=False)
+    privilege_type = Column(String, nullable=False)
     control_start = Column(Boolean, default=False, nullable=False)
     control_stop = Column(Boolean, default=False, nullable=False)
-    control_restart = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
-    server = relationship("ServerSettings", back_populates="member_privileges")
+    server = relationship("ServerSettings", back_populates="privileges")
 
     __table_args__ = (
-        UniqueConstraint("server_uuid", "member_id", name="uq_member_privilege"),
-    )
-
-
-class ServerControlPrivilegeRole(BaseApp):
-    __tablename__ = "server_control_privilege_role"
-
-    id = Column(Integer, primary_key=True)
-    server_uuid = Column(
-        String, 
-        ForeignKey("server_settings.uuid", ondelete="CASCADE"),
-        nullable=False
-    )
-    guild_id = Column(String, nullable=False)
-    channel_id = Column(String, nullable=False)
-    role_id = Column(String, nullable=False)
-    role_name = Column(String, nullable=False)
-    control_start = Column(Boolean, default=False, nullable=False)
-    control_stop = Column(Boolean, default=False, nullable=False)
-    control_restart = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-    server = relationship("ServerSettings", back_populates="role_privileges")
-
-    __table_args__ = (
-        UniqueConstraint("server_uuid", "role_id", name="uq_role_privilege"),
+        UniqueConstraint(
+            "server_uuid", "privilege_type", "principal_id",
+            name="uq_privilege_per_principal"
+        ),
+        Index("ix_priv_principal", "privilege_type", "principal_id"),
     )

@@ -92,13 +92,9 @@ class InitialSettingModal(discord.ui.Modal, title="Satisfactory Server — Initi
 
         if client_password:
             try:
-                gen_token(base_url, client_password, privilege = "Client")
+                await asyncio.to_thread(gen_token, base_url, client_password, 5, "Client")
             except ServerAPIError as ex:
-                await interaction.followup.send(f"Error: {ex}")
-                await server_channel.delete()
-                return
-            except Exception as ex:
-                await interaction.followup.send(f"Error: {ex}")
+                await interaction.followup.send(f"Error: {ex}", ephemeral=True)
                 await server_channel.delete()
                 return
 
@@ -125,10 +121,10 @@ class InitialSettingModal(discord.ui.Modal, title="Satisfactory Server — Initi
         try:
             db = get_session()
             new_server_setting = ServerSettings(
-                owner_id = interaction.user.id,
-                guild_id = interaction.guild.id,
-                channel_id = server_channel.id,
-                embed_id = status_message.id,
+                owner_id = str(interaction.user.id),
+                guild_id = str(interaction.guild.id),
+                channel_id = str(server_channel.id),
+                embed_id = str(status_message.id),
                 server_ip = server_ip,
                 server_port = server_port,
                 api_token = token,

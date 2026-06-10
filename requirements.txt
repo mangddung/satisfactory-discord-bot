@@ -3,3 +3,4 @@ requests==2.32.3
 python-dotenv==1.0.0
 SQLAlchemy==2.0.37
 asyncio==3.4.3
+docker==7.1.0
